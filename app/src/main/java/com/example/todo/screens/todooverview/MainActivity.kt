@@ -5,27 +5,30 @@ import androidx.appcompat.app.AppCompatActivity
 import com.example.todo.CompositionRoot
 
 class MainActivity : AppCompatActivity() {
-    private lateinit var compositionRoot: CompositionRoot
+    private val compositionRoot: CompositionRoot by lazy {
+        CompositionRoot(this)
+    }
 
-    private lateinit var todoOverviewController: TodoOverviewController
+    private val view: TodoOverviewView by lazy {
+        compositionRoot.getTodoOverviewView(null)
+    }
+
+    private val controller: TodoOverviewController by lazy {
+        compositionRoot.getTodoOverviewController().apply {
+            this.todoOverviewView = view
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setContentView(view.rootView)
 
-        compositionRoot = CompositionRoot(this)
-
-        val todoOverviewView = compositionRoot.getTodoOverviewView(null)
-        setContentView(todoOverviewView.rootView)
-
-        todoOverviewController = compositionRoot.getTodoOverviewController()
-        todoOverviewController.todoOverviewView = todoOverviewView
-
-        todoOverviewController.onCreate()
+        controller.onCreate()
     }
 
     override fun onDestroy() {
         super.onDestroy()
 
-        todoOverviewController.onDestroy()
+        controller.onDestroy()
     }
 }
